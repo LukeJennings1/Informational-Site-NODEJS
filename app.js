@@ -7,7 +7,7 @@ const app = express(); // creates the server
 
 //listen for requests from the port in express
 // app.listen(3000); // this needs to go in the .then of the database connection so that we only respond to the request
-                 // once the database has conneceted; 
+// once the database has conneceted; 
 
 //connect to MongoDB Database using mongoose
 DBURI = 'mongodb+srv://admin:password12345@projectcluster.pdzilih.mongodb.net/ProjectCluster?retryWrites=true&w=majority'
@@ -19,6 +19,8 @@ mongoose.connect(DBURI)
 // middleware & static file access
 app.use(express.static('/Users/mac1/Node.JS/Informational-Site-NODEJS/public'));
 
+app.use(express.urlencoded()); // this takes our post request object and enables us to use it in a function below. 
+
 // send data to the DB via mongoose 
 app.get('/add', (req, res) => {
     const addTest = new User({
@@ -29,6 +31,26 @@ app.get('/add', (req, res) => {
     .then((results) => {res.send(results)})
     .catch((error) => {console.log(error)})
 })
+app.get('/all-users', (req, res) => { // pulling all data from the database. 
+    User.find()
+        .then((result) => {res.send(result)})
+    .catch((error) => {console.log(error)})
+})
+app.post('/add', (req, res) => {
+    const newEntry = new User({
+        name: req.body.name,
+        age: req.body.age
+    });
+    newEntry.save()
+    .then((result) => {
+            res.redirect('/')
+    })
+    .catch((err) => {
+        console.log(err)
+    })
+ console.log(req.body); // we can only use the req.body of a post request because we added the built in middleware app.use(express.urlencoded());
+})
+
 
 //routing in express
 app.get('/', (req, res) => { //get requests in express. Req = request, Res = response
